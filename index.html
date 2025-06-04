@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Captaja - Plataforma que conecta investidores a empresários para compra e venda de empresas ou participações societárias.">
+    <title>Captaja - Conectando Investidores e Empresários</title>
+    <style>
+        /* Reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #001C71;
+            --secondary: #4c4c4c;
+            --accent: #14C9E6;
+            --light-bg: #e3f1fa;
+            --white-bg: #f7f7f7;
+            --white: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--white-bg);
+            color: var(--primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 5px 15px var(--shadow);
+            animation: modalFade 0.3s ease-in;
+        }
+
+        @keyframes modalFade {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--secondary);
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--accent);
+        }
+
+        .modal-title {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 24px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--primary);
+            color: var(--white);
+            text-align: center;
+            border-radius: 5px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--primary);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px var(--shadow);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--white);
+            text-decoration: none;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .logo-img {
+            height: 40px;
+            margin-right: 15px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-menu li {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            position: relative;
+            transition: color 0.3s;
+            padding: 10px 0;
+        }
+
+        .nav-menu a:hover {
+            color: var(--accent);
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 0;
+            height: 2px;
+            background-color: var(--accent);
+            transition: width 0.3s;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .bar {
+            display: block;
+            width: 25px;
+            height: 3px;
+            margin: 5px auto;
+            background-color: var(--white);
+            transition: all 0.3s;
+        }
+
+        .hamburger.active .bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active .bar:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+
+        .hamburger.active .bar:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(51, 51, 51, 0.8), rgba(51, 51, 51, 0.9)), url('/api/placeholder/1600/800') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: var(--white);
+            margin-top: 80px;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero .slogan {
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 20px;
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--accent);
+            color: var(--white);
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            border: 2px solid var(--accent);
+        }
+
+        .btn:hover {
+            background-color: transparent;
+            color: var(--accent);
+        }
+
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 14px;
+            background-color: var(--accent);
+            color: var(--white);
+            border-radius: 5px;
+            text-decoration: none;
+            border: 1px solid var(--accent);
+            transition: all 0.3s;
+        }
+
+        .btn-sm:hover {
+            background-color: transparent;
+            color: var(--accent);
+        }
+
+        /* Como Funciona */
+        .how-it-works {
+            padding: 100px 0;
+            background-color: var(--white);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 36px;
+            position: relative;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: var(--accent);
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .step {
+            flex: 1;
+            min-width: 250px;
+            margin: 15px;
+            padding: 30px 20px;
+            background-color: var(--white-bg);
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .step:hover {
+            transform: translateY(-10px);
+        }
+
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            margin: 0 auto 20px;
+            background-color: var(--light-bg);
+            border-radius: 50%;
+            font-size: 24px;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .step h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        /* Empresas em Destaque */
+        .featured-companies {
+            padding: 100px 0;
+            background-color: var(--light-bg);
+        }
+
+        /* Startups em Destaque */
+        .featured-startups {
+            padding: 100px 0;
+            background-color: var(--white);
+        }
+
+        .companies-grid, .startups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .company-card, .startup-card {
+            background-color: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .company-card:hover, .startup-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .company-image, .startup-image {
+            height: 180px;
+            background-color: var(--secondary);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .company-image img, .startup-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .company-info, .startup-info {
+            padding: 20px;
+        }
+
+        .company-info h3, .startup-info h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .company-sector, .startup-sector {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .company-percentage {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .startup-pitch {
+            font-size: 14px;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-outline {
+            display: block;
+            text-align: center;
+            padding: 10px;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--accent);
+            color: var(--white);
+        }
+
+        /* Para Investidores */
+        .investors, .companies {
+            padding: 100px 0;
+            background-color: var(--white);
+        }
+
+        .benefits {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            gap: 20px;
+        }
+
+        .benefit {
+            flex: 1;
+            min-width: 300px;
+            margin: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .benefit-icon {
+            min-width: 60px;
+            height: 60px;
+            background-color: var(--light-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--accent);
+            margin-right: 20px;
+        }
+
+        .benefit-content h3 {
+            margin-bottom: 10px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 60px 0 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .footer-column {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--accent);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #cccccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .social-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .social-links li {
+            margin-right: 15px;
+        }
+
+        .social-links a {
+            display: block;
+            width: 40px;
+            height: 40px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        .social-links a:hover {
+            background-color: var(--accent);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid var(--secondary);
+            font-size: 14px;
+            color: #aaaaaa;
+        }
+
+        /* Responsividade */
+        @media (max-width: 992px) {
+            .step, .benefit {
+                flex: 0 0 calc(50% - 30px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .nav-menu {
+                position: fixed;
+                left: -100%;
+                top: 80px;
+                flex-direction: column;
+                background-color: var(--primary);
+                width: 100%;
+                text-align: center;
+                transition: left 0.3s;
+                box-shadow: 0 10px 10px var(--shadow);
+                padding: 20px 0;
+                align-items: center;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .nav-menu li {
+                margin: 15px 0;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .hero .slogan {
+                font-size: 20px;
+            }
+
+            .hero p {
+                font-size: 18px;
+            }
+
+            .step, .benefit {
+                flex: 0 0 100%;
+                margin: 15px 0;
+            }
+
+            .companies-grid, .startups-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+
+            .navbar {
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .logo {
+                flex-grow: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .hero .slogan {
+                font-size: 18px;
+            }
+
+            .section-title h2 {
+                font-size: 28px;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo" aria-label="Captaja Home">
+                    <img src="/api/placeholder/150/50" alt="Captaja Logo" class="logo-img" id="logo-placeholder">
+                    Capta<span>ja</span>
+                </a>
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="#" aria-label="Início">Início</a></li>
+                    <li><a href="#como-funciona" aria-label="Como Funciona">Como Funciona</a></li>
+                    <li><a href="#empresas" aria-label="Encontre Empresas">Encontre Empresas</a></li>
+                    <li><a href="#startups" aria-label="Encontre Startups">Encontre Startups</a></li>
+                    <li><a href="#investidor" class="tooltip" aria-label="Sou Investidor">
+                        Sou Investidor
+                        <span class="tooltip-text">Conheça nossas oportunidades exclusivas para investidores</span>
+                    </a></li>
+                    <li><a href="#empresa" class="tooltip" aria-label="Sou Empresa">
+                        Sou Empresa
+                        <span class="tooltip-text">Descubra como vender sua empresa ou captar investimentos</span>
+                    </a></li>
+                    <li><a href="#" id="login-btn" aria-label="Login">Login</a></li>
+                    <li><a href="#" id="registro-btn" class="btn-sm" aria-label="Cadastre-se">Cadastre-se</a></li>
+                </ul>
+                <div class="hamburger" id="hamburger" role="button" aria-label="Toggle Menu">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Modal de Login -->
+    <div class="modal" id="login-modal" role="dialog" aria-labelledby="login-title">
+        <div class="modal-content">
+            <span class="close-modal" aria-label="Fechar Modal">×</span>
+            <h2 class="modal-title" id="login-title">Login</h2>
+            <form class="modal-form" aria-label="Formulário de Login">
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" placeholder="Seu e-mail" required aria-required="true">
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" placeholder="Sua senha" required aria-required="true">
+                </div>
+                <button type="submit" class="btn">Entrar</button>
+                <p style="margin-top: 15px; text-align: center;">
+                    <a href="#" style="color: var(--accent);" aria-label="Recuperar Senha">Esqueceu sua senha?</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Cadastro -->
+    <div class="modal" id="registro-modal" role="dialog" aria-labelledby="registro-title">
+        <div class="modal-content">
+            <span class="close-modal" aria-label="Fechar Modal">×</span>
+            <h2 class="modal-title" id="registro-title">Cadastre-se</h2>
+            <form class="modal-form" aria-label="Formulário de Cadastro">
+                <div class="form-group">
+                    <label for="nome">Nome completo</label>
+                    <input type="text" id="nome" placeholder="Seu nome completo" required aria-required="true">
+                </div>
+                <div class="form-group">
+                    <label for="email-cadastro">E-mail</label>
+                    <input type="email" id="email-cadastro" placeholder="Seu e-mail" required aria-required="true">
+                </div>
+                <div class="form-group">
+                    <label for="perfil">Você é:</label>
+                    <select id="perfil" required aria-required="true">
+                        <option value="" disabled selected>Selecione...</option>
+                        <option value="investidor">Investidor</option>
+                        <option value="empresario">Empresário</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="password-cadastro">Crie uma senha</label>
+                    <input type="password" id="password-cadastro" placeholder="Sua senha" required aria-required="true">
+                </div>
+                <button type="submit" class="btn">Criar conta</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Cadastro de Startup -->
+    <div class="modal" id="startup-modal" role="dialog" aria-labelledby="startup-title">
+        <div class="modal-content">
+            <span class="close-modal" aria-label="Fechar Modal">×</span>
+            <h2 class="modal-title" id="startup-title">Cadastrar Startup</h2>
+            <form class="modal-form" aria-label="Formulário de Cadastro de Startup">
+                <div class="form-group">
+                    <label for="startup-nome">Nome da Startup</label>
+                    <input type="text" id="startup-nome" placeholder="Nome da sua startup" required aria-required="true">
+                </div>
+                <div class="form-group">
+                    <label for="startup-setor">Setor</label>
+                    <select id="startup-setor" required aria-required="true">
+                        <option value="" disabled selected>Selecione...</option>
+                        <option value="tecnologia">Tecnologia</option>
+                        <option value="saude">Saúde</option>
+                        <option value="educacao">Educação</option>
+                        <option value="sustentabilidade">Sustentabilidade</option>
+                        <option value="financas">Finanças</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="startup-pitch">Pitch da Ideia</label>
+                    <textarea id="startup-pitch" placeholder="Descreva sua ideia em até 200 caracteres" maxlength="200" required aria-required="true"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="startup-imagem">Imagem da Startup</label>
+                    <input type="file" id="startup-imagem" accept="image/*" required aria-required="true">
+                </div>
+                <button type="submit" class="btn">Cadastrar Startup</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Contato Rápido -->
+    <div class="modal" id="contato-modal" role="dialog" aria-labelledby="contato-title">
+        <div class="modal-content">
+            <span class="close-modal" aria-label="Fechar Modal">×</span>
+            <h2 class="modal-title" id="contato-title">Fale Conosco</h2>
+            <form class="modal-form" aria-label="Formulário de Contato">
+                <div class="form-group">
+                    <label for="contato-nome">Nome</label>
+                    <input type="text" id="contato-nome" placeholder="Seu nome" required aria-required="true">
+                </div>
+                <div class="form-group">
+                    <label for="contato-email">E-mail</label>
+                    <input type="email" id="contato-email" placeholder="Seu e-mail" required aria-required="true">
+                </div>
+                <div class="form-group">
+                    <label for="contato-assunto">Assunto</label>
+                    <select id="contato-assunto" required aria-required="true">
+                        <option value="" disabled selected>Selecione...</option>
+                        <option value="duvida">Dúvidas</option>
+                        <option value="suporte">Suporte</option>
+                        <option value="empresa">Cadastrar Empresa</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="contato-mensagem">Mensagem</label>
+                    <textarea id="contato-mensagem" placeholder="Sua mensagem" required aria-required="true"></textarea>
+                </div>
+                <button type="submit" class="btn">Enviar mensagem</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes da Empresa -->
+    <div class="modal" id="empresa-detalhes-modal" role="dialog" aria-labelledby="empresa-title">
+        <div class="modal-content">
+            <span class="close-modal" aria-label="Fechar Modal">×</span>
+            <h2 class="modal-title" id="empresa-title">Tech Solutions</h2>
+            <div class="empresa-detalhes">
+                <div class="empresa-header" style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <img src="/api/placeholder/80/80" alt="Logo Tech Solutions" style="margin-right: 15px; border-radius: 5px;">
+                    <div>
+                        <div style="font-weight: bold; color: var(--accent); font-size: 18px;">Tecnologia / SaaS</div>
+                        <div style="font-weight: bold; font-size: 22px;">30% à venda</div>
+                    </div>
+                </div>
+                <div class="empresa-info">
+                    <h3>Sobre a empresa</h3>
+                    <p>A Tech Solutions é uma empresa de tecnologia fundada em 2020, especializada em desenvolvimento de softwares SaaS para gestão empresarial. Atualmente conta com mais de 200 clientes ativos e um faturamento mensal recorrente.</p>
+                    
+                    <h3 style="margin-top: 20px;">Números</h3>
+                    <ul style="list-style: none; padding: 10px 0;">
+                        <li style="margin-bottom: 10px;"><strong>Faturamento Anual:</strong> R$ 2,4 milhões</li>
+                        <li style="margin-bottom: 10px;"><strong>Lucro Líquido:</strong> R$ 780 mil</li>
+                        <li style="margin-bottom: 10px;"><strong>Clientes Ativos:</strong> 215</li>
+                        <li style="margin-bottom: 10px;"><strong>Churn Rate:</strong> 2.5%</li>
+                        <li><strong>Funcionários:</strong> 18</li>
+                    </ul>
+                    
+                    <h3 style="margin-top: 20px;">Motivo da venda</h3>
+                    <p>Captação de recursos para expansão internacional e ampliação do portfólio de produtos.</p>
+                    
+                    <div style="margin-top: 30px; display: flex; gap: 15px;">
+                        <button class="btn">Solicitar mais informações</button>
+                        <button class="btn-outline">Agendar reunião</button>
+                    </div>
+                </div>  
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes da Startup -->
+    <div class="modal" id="startup-detalhes-modal" role="dialog" aria-labelledby="startup-detalhes-title">
+        <div class="modal-content">
+            <span class="close-modal" aria-label="Fechar Modal">×</span>
+            <h2 class="modal-title" id="startup-detalhes-title">Startup Name</h2>
+            <div class="startup-detalhes">
+                <div class="startup-header" style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <img src="/api/placeholder/80/80" alt="Logo Startup" style="margin-right: 15px; border-radius: 5px;">
+                    <div>
+                        <div style="font-weight: bold; color: var(--accent); font-size: 18px;">Setor</div>
+                    </div>
+                </div>
+                <div class="startup-info">
+                    <h3>Pitch da Ideia</h3>
+                    <p>Descrição do pitch da startup, destacando a proposta de valor e o potencial de mercado.</p>
+                    <div style="margin-top: 30px; display: flex; gap: 15px;">
+                        <button class="btn">Solicitar mais informações</button>
+                        <button class="btn-outline">Agendar reunião</button>
+                    </div>
+                </div>  
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="hero-title">
+        <div class="container">
+            <div class="hero-content">
+                <h1 id="hero-title">Invista no futuro com segurança</h1>
+                <div class="slogan">Capte seu futuro — invista em inovação</div>
+                <p>Conecte-se com empresas à venda e oportunidades exclusivas</p>
+                <a href="#" class="btn" id="comece-agora-btn" aria-label="Comece Agora">Comece Agora</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Como Funciona -->
+    <section class="how-it-works" id="como-funciona" aria-labelledby="how-it-works-title">
+        <div class="container">
+            <div class="section-title">
+                <h2 id="how-it-works-title">Como Funciona</h2>
+                <p>Conheça os passos para investir com segurança na Captaja</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">1</div>
+                    <h3>Cadastre-se</h3>
+                    <p>Crie sua conta de forma rápida e segura. Valide seus dados e obtenha acesso às oportunidades exclusivas.</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">2</div>
+                    <h3>Explore oportunidades</h3>
+                    <p>Analise empresas verificadas, acesse dados financeiros e conheça negócios disponíveis para investimento.</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">3</div>
+                    <h3>Invista com segurança</h3>
+                    <p>Contate diretamente os empresários, negocie condições e finalize sua participação com toda a segurança.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Empresas em Destaque -->
+    <section class="featured-companies" id="empresas" aria-labelledby="empresas-title">
+        <div class="container">
+            <div class="section-title">
+                <h2 id="empresas-title">Empresas em Destaque</h2>
+                <p>Oportunidades selecionadas e verificadas pela nossa equipe</p>
+            </div>
+            <div class="companies-grid">
+                <div class="company-card">
+                    <div class="company-image">
+                        <img src="/api/placeholder/400/320" alt="Tech Solutions">
+                    </div>
+                    <div class="company-info">
+                        <h3>Tech Solutions</h3>
+                        <div class="company-sector">Tecnologia / SaaS</div>
+                        <div class="company-percentage">30% à venda</div>
+                        <a href="#" class="btn-outline" aria-label="Ver detalhes da Tech Solutions">Ver detalhes</a>
+                    </div>
+                </div>
+                <div class="company-card">
+                    <div class="company-image">
+                        <img src="/api/placeholder/400/320" alt="Green Energy">
+                    </div>
+                    <div class="company-info">
+                        <h3>Green Energy</h3>
+                        <div class="company-sector">Energia Sustentável</div>
+                        <div class="company-percentage">45% à venda</div>
+                        <a href="#" class="btn-outline" aria-label="Ver detalhes da Green Energy">Ver detalhes</a>
+                    </div>
+                </div>
+                <div class="company-card">
+                    <div class="company-image">
+                        <img src="/api/placeholder/400/320" alt="Agro Invest">
+                    </div>
+                    <div class="company-info">
+                        <h3>Agro Invest</h3>
+                        <div class="company-sector">Agronegócio</div>
+                        <div class="company-percentage">100% à venda</div>
+                        <a href="#" class="btn-outline" aria-label="Ver detalhes da Agro Invest">Ver detalhes</a>
+                    </div>
+                </div>
+                <div class="company-card">
+                    <div class="company-image">
+                        <img src="/api/placeholder/400/320" alt="Urban Logistics">
+                    </div>
+                    <div class="company-info">
+                        <h3>Urban Logistics</h3>
+                        <div class="company-sector">Logística</div>
+                        <div class="company-percentage">25% à venda</div>
+                        <a href="#" class="btn-outline" aria-label="Ver detalhes da Urban Logistics">Ver detalhes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Startups em Destaque -->
+    <section class="featured-startups" id="startups" aria-labelledby="startups-title">
+        <div class="container">
+            <div class="section-title">
+                <h2 id="startups-title">Startups em Destaque</h2>
+                <p>Conheça ideias inovadoras em busca de investimento</p>
+                <a href="#" id="cadastrar-startup-btn" class="btn" style="margin-top: 20px;" aria-label="Cadastrar Sua Startup">Cadastrar Sua Startup</a>
+            </div>
+            <div class="startups-grid">
+                <div class="startup-card">
+                    <div class="startup-image">
+                        <img src="/api/placeholder/400/320" alt="Innovate Tech">
+                    </div>
+                    <div class="startup-info">
+                        <h3>Innovate Tech</h3>
+                        <div class="startup-sector">Tecnologia</div>
+                        <div class="startup-pitch">Plataforma de IA para otimização de processos industriais, reduzizando custos em até 30%.</div>
+                        <a href="#" class="btn-outline" aria-label="Ver detalhes da Innovate Tech">Ver detalhes</a>
+                    </div>
+                </div>
+                <div class="startup-card">
+                    <div class="startup-image">
+                        <img src="/api/placeholder/400/320" alt="HealthTrack">
+                    </div>
+                    <div class="startup-info">
+                        <h3>HealthTrack</h3>
+                        <div class="startup-sector">Saúde</div>
+                        <div class="startup-pitch">Aplicativo de monitoramento de saúde com IA para prevenção de doenças crônicas.</div>
+                        <a href="#" class="btn-outline" aria-label="Ver detalhes da HealthTrack">Ver detalhes</a>
+                    </div>
+                </div>
+                <div class="startup-card">
+                    <div class="startup-image">
+                        <img src="/api/placeholder/400/320" alt="EcoSolutions">
+                    </div>
+                    <div class="startup-info">
+                        <h3>EcoSolutions</h3>
+                        <div class="startup-sector">Sustentabilidade</div>
+                        <div class="startup-pitch">Soluções de reciclagem inovadoras para reduzir o desperdício em 50%.</div>
+                        <a href="#" class="btn-outline" aria-label="Ver detalhes da EcoSolutions">Ver detalhes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Para Investidores -->
+    <section class="investors" id="investidor" aria-labelledby="investidor-title">
+        <div class="container">
+            <div class="section-title">
+                <h2 id="investidor-title">Para Investidores</h2>
+                <p>Por que escolher a Captaja para seus investimentos</p>
+            </div>
+            <div class="benefits">
+                <div class="benefit">
+                    <div class="benefit-icon">✓</div>
+                    <div class="benefit-content">
+                        <h3>Segurança</h3>
+                        <p>Todas as empresas são verificadas e validadas por nossa equipe de especialistas. Dados confidenciais são protegidos e compartilhados apenas com investidores qualificados.</p>
+                    </div>
+                </div>
+                <div class="benefit">
+                    <div class="benefit-icon">✓</div>
+                    <div class="benefit-content">
+                        <h3>Curadoria</h3>
+                        <p>Selecionamos cuidadosamente cada oportunidade, garantindo acesso apenas a negócios com potencial real de crescimento e retorno sobre o investimento.</p>
+                    </div>
+                </div>
+                <div class="benefit">
+                    <div class="benefit-icon">✓</div>
+                    <div class="benefit-content">
+                        <h3>Informação completa</h3>
+                        <p>Tenha acesso a dados financeiros, modelos de negócios, projeções e informações essenciais para tomar decisões de investimento bem fundamentadas.</p>
+                    </div>
+                </div>
+                <div class="benefit">
+                    <div class="benefit-icon">✓</div>
+                    <div class="benefit-content">
+                        <h3>Suporte especializado</h3>
+                        <p>Nossa equipe de consultores está disponível para orientar investidores em todas as etapas, desde a análise inicial até a formalização do investimento.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Para Empresas -->
+    <section class="companies" id="empresa" aria-labelledby="empresa-title">
+        <div class="container">
+            <div class="section-title">
+                <h2 id="empresa-title">Para Empresas</h2>
+                <p>Por que escolher a Captaja para vender sua empresa ou captar investimentos</p>
+            </div>
+            <div class="benefits">
+                <div class="benefit">
+                    <div class="benefit-icon">✓</div>
+                    <div class="benefit-content">
+                        <h3>Visibilidade</h3>
+                        <p>Apresente sua empresa ou startup a uma rede de investidores qualificados, aumentando suas chances de encontrar o parceiro ideal.</p>
+                    </div>
+                </div>
+                <div class="benefit">
+                    <div class="benefit-icon">✓</div>
+                    <div class="benefit-content">
+                        <h3>Processo Seguro</h3>
+                        <p>Negocie com confiança, sabendo que todos os investidores passam por um processo de validação para garantir segurança e confiabilidade.</p>
+                    </div>
+                </div>
+                <div class="benefit">
+                    <div class="benefit-icon">✓</div>
+                    <div class="benefit-content">
+                        <h3>Ferramentas de Apresentação</h3>
+                        <p>Crie apresentações detalhadas com dados financeiros e pitches claros para atrair o interesse de investidores.</p>
+                    </div>
+                </div>
+                <div class="benefit">
+                    <div class="benefit-icon">✓</div>
+                    <div class="benefit-content">
+                        <h3>Suporte Dedicado</h3>
+                        <p>Conte com nossa equipe para orientar você em cada etapa, desde o cadastro até a negociação final.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contato" aria-labelledby="footer-title">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3 id="footer-title">Captaja</h3>
+                    <p>Plataforma que conecta investidores a empresários que desejam vender empresas inteiras ou participações societárias.</p>
+                    <ul class="social-links" aria-label="Links de redes sociais">
+                        <li><a href="#" aria-label="Facebook">FB</a></li>
+                        <li><a href="#" aria-label="LinkedIn">IN</a></li>
+                        <li><a href="#" aria-label="Twitter">TW</a></li>
+                        <li><a href="#" aria-label="YouTube">YT</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Links Rápidos</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" aria-label="Início">Início</a></li>
+                        <li><a href="#como-funciona" aria-label="Como Funciona">Como Funciona</a></li>
+                        <li><a href="#empresas" aria-label="Encontre Empresas">Empresas</a></li>
+                        <li><a href="#startups" aria-label="Encontre Startups">Startups</a></li>
+                        <li><a href="#investidor" aria-label="Para Investidores">Para Investidores</a></li>
+                        <li><a href="#empresa" aria-label="Para Empresas">Para Empresas</a></li>
+                        <li><a href="#" id="footer-contato-btn" aria-label="Contato">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contato</h3>
+                    <ul class="footer-links">
+                        <li><a href="mailto:contato@captaja.com.br" aria-label="Enviar e-mail para contato">contato@captaja.com.br</a></li>
+                        <li><a href="tel:+5511999999999" aria-label="Ligar para contato">+55 (11) 99999-9999</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 Captaja. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Hamburger Menu Toggle
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('nav-menu');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Modal Handling
+        const modals = document.querySelectorAll('.modal');
+        const openModalButtons = {
+            'login-btn': 'login-modal',
+            'registro-btn': 'registro-modal',
+            'cadastrar-startup-btn': 'startup-modal',
+            'footer-contato-btn': 'contato-modal',
+            'comece-agora-btn': 'registro-modal'
+        };
+        const closeModalButtons = document.querySelectorAll('.close-modal');
+
+        Object.keys(openModalButtons).forEach(buttonId => {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const modal = document.getElementById(openModalButtons[buttonId]);
+                    modal.style.display = 'flex';
+                });
+            }
+        });
+
+        closeModalButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                modals.forEach(modal => {
+                    modal.style.display = 'none';
+                });
+            });
+        });
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            modals.forEach(modal => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        // Close mobile menu when clicking a nav link
+        navMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+
+        // Open company details modal when clicking "Ver detalhes"
+        document.querySelectorAll('.company-card .btn-outline').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const modal = document.getElementById('empresa-detalhes-modal');
+                modal.style.display = 'flex';
+            });
+        });
+
+        // Open startup details modal when clicking "Ver detalhes"
+        document.querySelectorAll('.startup-card .btn-outline').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const modal = document.getElementById('startup-detalhes-modal');
+                modal.style.display = 'flex';
+            });
+        });
+    </script>
+</body>
+</html>
